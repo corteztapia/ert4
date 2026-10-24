@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ECO-TRACK PYME</title>
+<style>
+:root{
+  --bg:#f3f9f7;--surface:#ffffff;--surface-2:#eaf3f0;--border:#dde8e4;--text:#132620;--muted:#5c726c;
+  --primary:#0e9f77;--primary-dk:#0a7a5c;--accent:#13b3ab;--danger:#c6433d;--warn:#b9811a;
+  --shadow:0 1px 2px rgba(15,40,33,.06),0 6px 18px rgba(15,40,33,.06);--radius:12px;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1512;--surface:#0f1e1a;--surface-2:#142521;--border:#213530;--text:#e6f3ee;--muted:#8ea39d;
+    --primary:#2fd198;--primary-dk:#24a97b;--accent:#3fdccf;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1512;--surface:#0f1e1a;--surface-2:#142521;--border:#213530;--text:#e6f3ee;--muted:#8ea39d;
+  --primary:#2fd198;--primary-dk:#24a97b;--accent:#3fdccf;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px}
+button{font:inherit;cursor:pointer}
+input,select{font:inherit;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 9px}
+h1,h2,h3{margin:0 0 4px}
+.hidden{display:none !important}
+/* login */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 30px;width:100%;max-width:360px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.brand .mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:19px}
+.brand b{font-size:17px}
+.login-card label{display:block;font-size:12.5px;color:var(--muted);margin:12px 0 4px}
+.login-card input{width:100%}
+.btn{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:9px 15px;font-weight:600}
+.btn:hover{background:var(--primary-dk)}
+.btn.secondary{background:var(--surface-2);color:var(--text)}
+.btn.ghost{background:transparent;color:var(--primary);border:1px solid var(--border)}
+.btn.danger{background:var(--danger);color:#fff}
+.note{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5}
+/* shell */
+#shell{display:none;min-height:100vh}
+#shell.on{display:flex}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:16px 12px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar nav button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:none;color:var(--text);padding:9px 10px;border-radius:8px;margin-bottom:2px;font-size:13.5px}
+.sidebar nav button.active{background:var(--surface-2);color:var(--primary-dk);font-weight:600}
+.sidebar nav button:hover{background:var(--surface-2)}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--surface)}
+.topbar input{flex:1;max-width:320px}
+.icon-btn{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;position:relative}
+.dot{position:absolute;top:-3px;right:-3px;background:var(--danger);color:#fff;font-size:9px;border-radius:50%;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center}
+.dropdown{position:absolute;right:20px;top:54px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);width:290px;padding:10px;z-index:20}
+.dropdown p{margin:0;font-size:12px;color:var(--muted);padding:6px 4px}
+.dropdown .item{padding:7px 6px;border-radius:7px;font-size:12.5px}
+.dropdown .item:hover{background:var(--surface-2)}
+#content{padding:20px;overflow-x:hidden}
+.view-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.view-head p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+.kpi .label{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.kpi .val{font-size:22px;font-weight:700;margin-top:4px}
+.kpi .val.alert{color:var(--danger)}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+.panel h3{font-size:14.5px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--border);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.02em}
+.table-wrap{overflow-x:auto}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600}
+.tag.ok{background:#dcf5ea;color:#0a7a52}
+.tag.bad{background:#fbe2e0;color:#a4302a}
+.tag.warn{background:#fbedd3;color:#8a5c0c}
+.tag.info{background:#dcf0ee;color:#116f68}
+[data-theme="dark"] .tag.ok{background:#113b2b;color:#4fe6ab}
+[data-theme="dark"] .tag.bad{background:#3c1816;color:#f29e98}
+[data-theme="dark"] .tag.warn{background:#3a2c0d;color:#f0c374}
+[data-theme="dark"] .tag.info{background:#0f3330;color:#6fe3da}
+.bar-row{display:grid;grid-template-columns:120px 1fr auto;align-items:center;gap:8px;margin:7px 0;font-size:12.5px}
+.bar-bg{background:var(--surface-2);border-radius:6px;height:10px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:6px}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+.form-row div{display:flex;flex-direction:column;gap:4px}
+.form-row label{font-size:11.5px;color:var(--muted)}
+.inline-form{background:var(--surface-2);border-radius:10px;padding:12px;margin:10px 0}
+.formula{background:var(--surface-2);border-radius:8px;padding:10px 12px;font-size:13px;margin:8px 0}
+.empty{text-align:center;color:var(--muted);padding:26px 10px;font-size:13px}
+.modal-bg{position:fixed;inset:0;background:rgba(10,20,17,.45);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal{background:var(--surface);border-radius:var(--radius);padding:20px;width:320px;box-shadow:var(--shadow)}
+.modal p{font-size:13.5px;margin:6px 0 18px}
+.actions{display:flex;gap:8px;justify-content:flex-end}
+.row-actions{display:flex;gap:6px}
+.row-actions button{padding:4px 9px;font-size:12px;border-radius:6px;border:1px solid var(--border);background:var(--surface)}
+input.sm{width:85px}
+@media (max-width:860px){
+  .sidebar{position:fixed;left:0;bottom:0;top:auto;width:100%;height:auto;display:flex;overflow-x:auto;border-right:none;border-top:1px solid var(--border);padding:8px;z-index:30}
+  .sidebar nav{display:flex;gap:4px}
+  .sidebar nav button{white-space:nowrap;margin-bottom:0}
+  .sidebar>div:first-child{display:none}
+  #shell.on{flex-direction:column}
+  .main{padding-bottom:64px}
+  #content{padding:14px}
+  .topbar input{max-width:none}
+}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-card">
+    <div class="brand"><div class="mark">🌱</div><b>ECO-TRACK PYME</b></div>
+    <div style="font-size:12.5px;color:var(--muted)">ERP para PYMEs — inventarios, producción y sostenibilidad</div>
+    <label>Correo</label><input id="loginUser" value="admin@agroverde.pe">
+    <label>Contraseña</label><input id="loginPass" type="password" value="demo1234">
+    <button class="btn" style="width:100%;margin-top:18px" onclick="doLogin()">Iniciar sesión</button>
+    <div class="note">Acceso de demostración, sin autenticación real. Los datos se guardan solo en este navegador (localStorage), no en un servidor.</div>
+  </div>
+</div>
+
+<div id="shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="mark">🌱</div><b>ECO-TRACK</b></div>
+    <nav id="nav"></nav>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <input id="search" placeholder="Buscar en esta vista…" oninput="filterRows(this.value)">
+      <button class="icon-btn" onclick="toggleTheme()" title="Modo claro/oscuro">◐</button>
+      <button class="icon-btn" onclick="toggleDrop()" title="Notificaciones">🔔<span class="dot" id="notifDot">0</span></button>
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">AD</div>
+    </div>
+    <div id="dropWrap" class="dropdown hidden"></div>
+    <div id="content"></div>
+  </div>
+</div>
+
+<div id="modalWrap"></div>
+
+<script>
+const STORAGE_KEY='ecotrack_v1';
+const VIEWS=[['dashboard','📊','Dashboard'],['inventario','📦','Inventario'],['produccion','⚙️','Producción'],
+['costos','💰','Costos'],['eoq','📐','EOQ'],['reposicion','🔄','Reposición y compras'],
+['mermas','♻️','Mermas'],['reportes','📄','Reportes'],['config','🏢','Configuración']];
+let current='dashboard';
+
+function defaultState(){
+  const now=Date.now(), day=86400000;
+  return {
+    products:[
+      {id:'MP1',name:'Harina de maíz amarillo',type:'MP',unit:'kg',stock:420,min:150,cost:3.2,active:true},
+      {id:'MP2',name:'Aceite vegetal',type:'MP',unit:'L',stock:95,min:60,cost:7.8,active:true},
+      {id:'MP3',name:'Envase PET 500ml',type:'MP',unit:'und',stock:2200,min:1000,cost:0.35,active:true},
+      {id:'PT1',name:'Snack de maíz 100g',type:'PT',unit:'und',stock:860,min:300,cost:1.9,active:true},
+      {id:'PT2',name:'Bebida energética 500ml',type:'PT',unit:'und',stock:410,min:200,cost:2.4,active:true}],
+    bom:{PT1:[{raw:'MP1',qty:0.09},{raw:'MP2',qty:0.015}],PT2:[{raw:'MP3',qty:1}]},
+    movements:[
+      {id:'M-1001',date:now-9*day,product:'MP1',type:'entrada',qty:500,reason:'Compra inicial',user:'Almacén',ref:'OC-0001'},
+      {id:'M-1002',date:now-9*day,product:'MP2',type:'entrada',qty:120,reason:'Compra inicial',user:'Almacén',ref:'OC-0001'},
+      {id:'M-1003',date:now-5*day,product:'PT1',type:'salida',qty:495,reason:'Venta a distribuidor',user:'Ventas',ref:'FV-0231'}],
+    orders:[
+      {id:'OP-0001',product:'PT1',qty:500,status:'Finalizada',date:now-6*day,produced:495,defective:5,materialCost:197.6,labor:350,overhead:180},
+      {id:'OP-0002',product:'PT2',qty:300,status:'En proceso',date:now-1*day,produced:0,defective:0,materialCost:0,labor:0,overhead:0}],
+    mermas:[{id:'MR-001',date:now-6*day,product:'PT1',qty:5,reason:'Rotura en línea de empaque',order:'OP-0001'}],
+    eoqSims:[{id:'EOQ-1',date:now-10*day,product:'MP1',D:6000,S:45,H:0.9}],
+    prob:{MP1:{d:18,sigma:4,L:6,z:1.65},MP2:{d:4,sigma:1.2,L:9,z:1.65},MP3:{d:70,sigma:15,L:10,z:1.65}},
+    suppliers:[{id:'P1',name:'Molinos del Sur SAC',contact:'ventas@molinosdelsur.pe',supplies:'MP1'},
+      {id:'P2',name:'Química Andina EIRL',contact:'contacto@quimicaandina.pe',supplies:'MP2'},
+      {id:'P3',name:'Plásticos Lima SAC',contact:'pedidos@plasticoslima.pe',supplies:'MP3'}],
+    purchaseOrders:[],
+    seq:{mov:1004,ord:3,merma:2,eoq:2}
+  };
+}
+let state=load();
+function load(){try{const s=localStorage.getItem(STORAGE_KEY);return s?JSON.parse(s):defaultState();}catch(e){return defaultState();}}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+function money(n){return 'S/ '+(n||0).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function num(n,d){return (n||0).toLocaleString('es-PE',{minimumFractionDigits:d||0,maximumFractionDigits:d||2});}
+function round2(n){return Math.round(n*100)/100;}
+function fdate(t){return new Date(t).toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});}
+function prod(id){return state.products.find(p=>p.id===id);}
+
+function doLogin(){
+  try{localStorage.setItem('ecotrack_theme_check','1');}catch(e){}
+  document.getElementById('login').style.display='none';
+  document.getElementById('shell').classList.add('on');
+  initTheme();buildNav();renderAll();
+}
+function logout(){document.getElementById('shell').classList.remove('on');document.getElementById('login').style.display='flex';}
+
+function initTheme(){
+  let t=null;try{t=localStorage.getItem('ecotrack_theme');}catch(e){}
+  if(t)document.documentElement.setAttribute('data-theme',t);
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next=cur==='dark'?'light':(cur==='light'?null:'dark');
+  if(next)document.documentElement.setAttribute('data-theme',next);else document.documentElement.removeAttribute('data-theme');
+  try{localStorage.setItem('ecotrack_theme',next||'');}catch(e){}
+}
+function buildNav(){
+  const nav=document.getElementById('nav');
+  nav.innerHTML=VIEWS.map(v=>`<button data-v="${v[0]}" onclick="showView('${v[0]}')" class="${v[0]===current?'active':''}">${v[1]} ${v[2]}</button>`).join('');
+}
+function showView(id){current=id;document.querySelectorAll('.sidebar nav button').forEach(b=>b.classList.toggle('active',b.dataset.v===id));document.getElementById('search').value='';renderAll();}
+function filterRows(q){
+  q=q.trim().toLowerCase();
+  document.querySelectorAll('#content tr[data-row]').forEach(r=>{r.style.display=!q||r.textContent.toLowerCase().includes(q)?'':'none';});
+}
+
+function confirmAction(msg,fn){
+  document.getElementById('modalWrap').innerHTML=`<div class="modal-bg"><div class="modal"><h3>Confirmar acción</h3><p>${msg}</p>
+  <div class="actions"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn danger" id="confirmBtn">Confirmar</button></div></div></div>`;
+  document.getElementById('confirmBtn').onclick=()=>{fn();closeModal();};
+}
+function closeModal(){document.getElementById('modalWrap').innerHTML='';}
+
+function toggleDrop(){
+  const w=document.getElementById('dropWrap');
+  if(!w.classList.contains('hidden')){w.classList.add('hidden');return;}
+  const alerts=[];
+  state.products.filter(p=>p.active&&p.stock<p.min).forEach(p=>alerts.push(`Stock crítico: ${p.name} (${num(p.stock,1)} ${p.unit})`));
+  state.products.filter(p=>p.type==='MP'&&state.prob[p.id]).forEach(p=>{const r=ropOf(p.id);if(p.stock<=r.rop)alerts.push(`Reponer ya: ${p.name}, bajo punto de reposición`);});
+  state.purchaseOrders.filter(o=>o.status==='Pendiente').forEach(o=>alerts.push(`OC pendiente de recepción: ${o.id}`));
+  document.getElementById('notifDot').textContent=alerts.length;
+  const w2=document.getElementById('dropWrap');
+  w2.innerHTML=alerts.length?alerts.map(a=>`<div class="item">${a}</div>`).join(''):`<p>Sin alertas por ahora</p>`;
+  w2.classList.remove('hidden');
+}
+
+function addMovement(productId,type,qty,reason,ref){
+  state.movements.unshift({id:'M-'+(state.seq.mov++),date:Date.now(),product:productId,type,qty,reason,user:'Admin Demo',ref:ref||'-'});
+}
+function registerMovement(){
+  const id=document.getElementById('mvProd').value,type=document.getElementById('mvType').value,qty=parseFloat(document.getElementById('mvQty').value),reason=document.getElementById('mvReason').value||'Sin motivo especificado';
+  if(!qty||qty<=0){alert('Ingresa una cantidad válida');return;}
+  const p=prod(id);
+  if(type==='salida'&&qty>p.stock){alert('Stock insuficiente para registrar esta salida');return;}
+  if(type==='entrada')p.stock+=qty;else if(type==='salida')p.stock-=qty;else p.stock=qty;
+  addMovement(id,type,qty,reason,'MANUAL');save();renderAll();
+}
+function addProduct(){
+  const name=document.getElementById('npName').value.trim();if(!name){alert('Nombre requerido');return;}
+  const type=document.getElementById('npType').value,unit=document.getElementById('npUnit').value||'und';
+  const stock=parseFloat(document.getElementById('npStock').value)||0,min=parseFloat(document.getElementById('npMin').value)||0,cost=parseFloat(document.getElementById('npCost').value)||0;
+  const id=type+(state.products.filter(p=>p.type===type).length+1);
+  state.products.push({id,name,type,unit,stock,min,cost,active:true});save();renderAll();
+}
+function toggleActive(id){const p=prod(id);confirmAction(`¿${p.active?'Desactivar':'Reactivar'} "${p.name}"?`,()=>{p.active=!p.active;save();renderAll();});}
+
+function finalizeOrder(orderId){
+  const o=state.orders.find(x=>x.id===orderId);
+  const good=parseFloat(document.getElementById('good_'+orderId).value);
+  const bad=parseFloat(document.getElementById('bad_'+orderId).value)||0;
+  if(!good||good<0){alert('Ingresa la cantidad buena obtenida');return;}
+  const pt=prod(o.product),recipe=state.bom[o.product]||[],total=good+bad;
+  for(const it of recipe){const raw=prod(it.raw),needed=it.qty*total;if(raw.stock<needed){alert(`Stock insuficiente de ${raw.name}: faltan ${num(needed-raw.stock,1)} ${raw.unit}`);return;}}
+  let materialCost=0;
+  for(const it of recipe){const raw=prod(it.raw),needed=it.qty*total;raw.stock-=needed;materialCost+=needed*raw.cost;addMovement(raw.id,'salida',needed,'Consumo de producción','Orden '+orderId);}
+  pt.stock+=good;addMovement(pt.id,'entrada',good,'Ingreso de producción','Orden '+orderId);
+  o.produced=good;o.defective=bad;o.materialCost=round2(materialCost);o.status='Finalizada';
+  pt.cost=round2((materialCost+(o.labor||0)+(o.overhead||0))/Math.max(good,1));
+  if(bad>0)state.mermas.push({id:'MR-'+(state.seq.merma++),date:Date.now(),product:pt.id,qty:bad,reason:'Merma de producción',order:orderId});
+  save();renderAll();
+}
+function advanceOrder(id,newStatus){const o=state.orders.find(x=>x.id===id);o.status=newStatus;save();renderAll();}
+function cancelOrder(id){confirmAction('¿Cancelar esta orden de producción? No se consumirán materiales.',()=>{const o=state.orders.find(x=>x.id===id);o.status='Cancelada';save();renderAll();});}
+function createOrder(){
+  const product=document.getElementById('opProd').value,qty=parseFloat(document.getElementById('opQty').value);
+  if(!qty||qty<=0){alert('Ingresa una cantidad planificada válida');return;}
+  state.orders.unshift({id:'OP-'+String(state.seq.ord++).padStart(4,'0'),product,qty,status:'Borrador',date:Date.now(),produced:0,defective:0,materialCost:0,labor:0,overhead:0});
+  save();renderAll();
+}
+function updateCost(orderId,field,val){const o=state.orders.find(x=>x.id===orderId);o[field]=parseFloat(val)||0;
+  if(o.produced>0){const pt=prod(o.product);pt.cost=round2((o.materialCost+o.labor+o.overhead)/o.produced);}
+  save();renderAll();}
+
+function registerMerma(){
+  const id=document.getElementById('mrProd').value,qty=parseFloat(document.getElementById('mrQty').value),reason=document.getElementById('mrReason').value||'Sin especificar';
+  const p=prod(id);if(!qty||qty<=0){alert('Cantidad inválida');return;}if(qty>p.stock){alert('La cantidad supera el stock disponible');return;}
+  p.stock-=qty;addMovement(id,'salida',qty,'Merma: '+reason,'MERMA');
+  state.mermas.unshift({id:'MR-'+(state.seq.merma++),date:Date.now(),product:id,qty,reason,order:null});
+  save();renderAll();
+}
+
+function calcEOQ(D,S,H){const eoq=Math.sqrt(2*D*S/H);return{eoq,N:D/eoq,ordCost:(D/eoq)*S,holdCost:(eoq/2)*H,total:(D/eoq)*S+(eoq/2)*H};}
+function runEOQ(){
+  const D=parseFloat(document.getElementById('eoqD').value),S=parseFloat(document.getElementById('eoqS').value),H=parseFloat(document.getElementById('eoqH').value),pid=document.getElementById('eoqProd').value;
+  if(!D||!S||!H||D<=0||S<=0||H<=0){alert('D, S y H deben ser números mayores a 0');return;}
+  const r=calcEOQ(D,S,H);
+  document.getElementById('eoqResult').innerHTML=renderEOQResult(r,D,S,H,pid);
+}
+function saveEOQSim(D,S,H,pid){state.eoqSims.unshift({id:'EOQ-'+(state.seq.eoq++),date:Date.now(),product:pid,D,S,H});save();renderAll();}
+
+function ropOf(pid){
+  const pp=state.prob[pid]||{d:0,sigma:0,L:1,z:1.65};
+  const ss=pp.z*pp.sigma*Math.sqrt(pp.L);
+  return{ss:round2(ss),rop:round2(pp.d*pp.L+ss),pp};
+}
+function updateProb(pid,field,val){state.prob[pid]=state.prob[pid]||{d:0,sigma:0,L:1,z:1.65};state.prob[pid][field]=parseFloat(val)||0;save();renderAll();}
+function genPO(pid,qty){
+  const sup=state.suppliers.find(s=>s.supplies===pid);
+  state.purchaseOrders.unshift({id:'OC-'+(state.purchaseOrders.length+10),supplier:sup?sup.name:'Proveedor por definir',product:pid,qty:round2(qty),status:'Pendiente',date:Date.now()});
+  save();renderAll();
+}
+function receivePO(id){
+  const o=state.purchaseOrders.find(x=>x.id===id),p=prod(o.product);
+  p.stock+=o.qty;addMovement(o.product,'entrada',o.qty,'Recepción de compra',o.id);o.status='Recibida';save();renderAll();
+}
+
+/* ---------- render ---------- */
+function renderAll(){
+  document.getElementById('content').innerHTML=({
+    dashboard:viewDashboard,inventario:viewInventario,produccion:viewProduccion,costos:viewCostos,
+    eoq:viewEOQ,reposicion:viewReposicion,mermas:viewMermas,reportes:viewReportes,config:viewConfig
+  })[current]();
+  buildNav();
+}
+function head(t,s){return `<div class="view-head"><div><h2>${t}</h2><p>${s}</p></div></div>`;}
+function table(headers,rows){
+  if(!rows.length)return `<div class="empty">Sin registros todavía</div>`;
+  return `<div class="table-wrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+}
+
+function viewDashboard(){
+  const active=state.products.filter(p=>p.active);
+  const invValue=active.reduce((s,p)=>s+p.stock*p.cost,0);
+  const crit=active.filter(p=>p.stock<p.min).length;
+  const activeOrd=state.orders.filter(o=>['Borrador','Programada','En proceso'].includes(o.status)).length;
+  const doneOrd=state.orders.filter(o=>o.status==='Finalizada');
+  const totalGood=doneOrd.reduce((s,o)=>s+o.produced,0),totalBad=doneOrd.reduce((s,o)=>s+o.defective,0);
+  const mermaPct=totalGood+totalBad>0?(totalBad/(totalGood+totalBad))*100:0;
+  const mermaCost=state.mermas.reduce((s,m)=>{const p=prod(m.product);return s+m.qty*(p?p.cost:0);},0);
+  const eff=totalGood+totalBad>0?(totalGood/(totalGood+totalBad))*100:100;
+  const invByProd=active.map(p=>({name:p.name,val:p.stock*p.cost})).sort((a,b)=>b.val-a.val).slice(0,5);
+  const maxInv=Math.max(...invByProd.map(x=>x.val),1);
+  const mermaByProd={};state.mermas.forEach(m=>{const p=prod(m.product);if(!p)return;mermaByProd[p.name]=(mermaByProd[p.name]||0)+m.qty*p.cost;});
+  const mList=Object.entries(mermaByProd).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxM=Math.max(...mList.map(x=>x[1]),1);
+  return head('Dashboard ejecutivo','Indicadores calculados a partir de los registros actuales del sistema')+
+  `<div class="grid">
+    <div class="card kpi"><div class="label">Inventario valorizado</div><div class="val">${money(invValue)}</div></div>
+    <div class="card kpi"><div class="label">Productos activos</div><div class="val">${active.length}</div></div>
+    <div class="card kpi"><div class="label">Stock crítico</div><div class="val ${crit?'alert':''}">${crit}</div></div>
+    <div class="card kpi"><div class="label">Órdenes activas</div><div class="val">${activeOrd}</div></div>
+    <div class="card kpi"><div class="label">Producción finalizada</div><div class="val">${doneOrd.length}</div></div>
+    <div class="card kpi"><div class="label">% de merma</div><div class="val ${mermaPct>3?'alert':''}">${num(mermaPct,1)}%</div></div>
+    <div class="card kpi"><div class="label">Costo de mermas</div><div class="val">${money(mermaCost)}</div></div>
+    <div class="card kpi"><div class="label">Eficiencia de producción</div><div class="val">${num(eff,1)}%</div></div>
+  </div>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="panel"><h3>Valor de inventario por producto</h3>${invByProd.map(x=>`<div class="bar-row"><span>${x.name}</span><div class="bar-bg"><div class="bar-fill" style="width:${x.val/maxInv*100}%"></div></div><span>${money(x.val)}</span></div>`).join('')||'<div class="empty">Sin datos</div>'}</div>
+    <div class="panel"><h3>Costo de mermas por producto</h3>${mList.map(x=>`<div class="bar-row"><span>${x[0]}</span><div class="bar-bg"><div class="bar-fill" style="width:${x[1]/maxM*100}%"></div></div><span>${money(x[1])}</span></div>`).join('')||'<div class="empty">Sin mermas registradas</div>'}</div>
+  </div>
+  <div class="note">% de merma = unidades defectuosas / (unidades buenas + defectuosas) de las órdenes finalizadas. El costo de merma usa el costo unitario vigente de cada producto.</div>`;
+}
+
+function viewInventario(){
+  const rows=state.products.map(p=>`<tr data-row>
+    <td>${p.id}</td><td>${p.name}</td><td>${p.type==='MP'?'Materia prima':'Prod. terminado'}</td>
+    <td>${num(p.stock,1)} ${p.unit}</td><td>${num(p.min,1)}</td><td>${money(p.cost)}</td>
+    <td>${p.active?(p.stock<p.min?'<span class="tag bad">Crítico</span>':'<span class="tag ok">OK</span>'):'<span class="tag warn">Inactivo</span>'}</td>
+    <td class="row-actions"><button onclick="toggleActive('${p.id}')">${p.active?'Desactivar':'Reactivar'}</button></td></tr>`);
+  return head('Gestión de inventarios','Productos, materias primas, movimientos y niveles de stock')+
+  `<div class="panel"><h3>Productos</h3>
+    <div class="inline-form"><div class="form-row">
+      <div><label>Nombre</label><input id="npName" placeholder="Ej. Azúcar blanca"></div>
+      <div><label>Tipo</label><select id="npType"><option value="MP">Materia prima</option><option value="PT">Producto terminado</option></select></div>
+      <div><label>Unidad</label><input id="npUnit" class="sm" placeholder="kg"></div>
+      <div><label>Stock inicial</label><input id="npStock" type="number" class="sm"></div>
+      <div><label>Stock mínimo</label><input id="npMin" type="number" class="sm"></div>
+      <div><label>Costo unit.</label><input id="npCost" type="number" class="sm" step="0.01"></div>
+      <button class="btn" onclick="addProduct()">+ Nuevo producto</button>
+    </div></div>
+    ${table(['ID','Nombre','Tipo','Stock','Mínimo','Costo','Estado',''],rows)}
+  </div>
+  <div class="panel"><h3>Registrar movimiento</h3>
+    <div class="form-row">
+      <div><label>Producto</label><select id="mvProd">${state.products.filter(p=>p.active).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+      <div><label>Tipo</label><select id="mvType"><option value="entrada">Entrada</option><option value="salida">Salida</option><option value="ajuste">Ajuste (fija stock)</option></select></div>
+      <div><label>Cantidad</label><input id="mvQty" type="number" class="sm" step="0.01"></div>
+      <div><label>Motivo</label><input id="mvReason" placeholder="Ej. Compra, venta, conteo"></div>
+      <button class="btn" onclick="registerMovement()">Registrar</button>
+    </div>
+  </div>
+  <div class="panel"><h3>Historial de movimientos</h3>${table(['Fecha','Producto','Tipo','Cantidad','Motivo','Usuario','Referencia'],
+    state.movements.slice(0,20).map(m=>`<tr data-row><td>${fdate(m.date)}</td><td>${prod(m.product)?.name||m.product}</td><td><span class="tag ${m.type==='entrada'?'ok':m.type==='salida'?'bad':'info'}">${m.type}</span></td><td>${num(m.qty,1)}</td><td>${m.reason}</td><td>${m.user}</td><td>${m.ref}</td></tr>`))}</div>`;
+}
+
+function viewProduccion(){
+  const rows=state.orders.map(o=>{
+    const pt=prod(o.product);
+    const canFinish=o.status==='En proceso';
+    let acts=`<span class="tag ${o.status==='Finalizada'?'ok':o.status==='Cancelada'?'bad':o.status==='En proceso'?'warn':'info'}">${o.status}</span>`;
+    let flow='';
+    if(o.status==='Borrador')flow=`<button onclick="advanceOrder('${o.id}','Programada')">Programar</button><button onclick="cancelOrder('${o.id}')">Cancelar</button>`;
+    if(o.status==='Programada')flow=`<button onclick="advanceOrder('${o.id}','En proceso')">Iniciar</button><button onclick="cancelOrder('${o.id}')">Cancelar</button>`;
+    return `<tr data-row><td>${o.id}</td><td>${pt?.name}</td><td>${num(o.qty,1)}</td><td>${fdate(o.date)}</td><td>${acts}</td>
+      <td>${o.status==='Finalizada'?num(o.produced,1)+' buenas / '+num(o.defective,1)+' def.':'-'}</td>
+      <td class="row-actions">${flow}</td></tr>
+      ${canFinish?`<tr data-row><td colspan="7"><div class="inline-form"><div class="form-row">
+        <div><label>Cant. buena obtenida</label><input id="good_${o.id}" type="number" class="sm" value="${o.qty}"></div>
+        <div><label>Cant. defectuosa</label><input id="bad_${o.id}" type="number" class="sm" value="0"></div>
+        <button class="btn" onclick="finalizeOrder('${o.id}')">Finalizar orden</button></div></div></td></tr>`:''}`;
+  });
+  const bomRows=Object.entries(state.bom).map(([pid,items])=>`<tr data-row><td>${prod(pid)?.name}</td><td>${items.map(i=>`${num(i.qty,3)} ${prod(i.raw).unit} de ${prod(i.raw).name}`).join(', ')}</td></tr>`);
+  return head('Control de producción','Órdenes de producción, BOM y consumo de materiales')+
+  `<div class="panel"><h3>Nueva orden de producción</h3><div class="form-row">
+    <div><label>Producto a fabricar</label><select id="opProd">${state.products.filter(p=>p.type==='PT'&&p.active).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+    <div><label>Cantidad planificada</label><input id="opQty" type="number" class="sm" value="100"></div>
+    <button class="btn" onclick="createOrder()">Crear orden (Borrador)</button></div></div>
+  <div class="panel"><h3>Órdenes</h3>${table(['ID','Producto','Cant. plan.','Fecha','Estado','Resultado',''],rows)}</div>
+  <div class="panel"><h3>Lista de materiales (BOM)</h3>${table(['Producto terminado','Materiales por unidad'],bomRows)}
+  <div class="note">Estados: Borrador → Programada → En proceso → Finalizada, o Cancelada. Al finalizar, el sistema descuenta materias primas según el BOM y aumenta el stock del producto terminado; las unidades defectuosas generan una merma automática y no se suman al stock.</div></div>`;
+}
+
+function viewCostos(){
+  const rows=state.orders.filter(o=>o.status==='Finalizada'||o.status==='En proceso').map(o=>{
+    const total=o.materialCost+o.labor+o.overhead,unit=o.produced>0?total/o.produced:0;
+    return `<tr data-row><td>${o.id}</td><td>${prod(o.product).name}</td><td>${money(o.materialCost)}</td>
+    <td><input type="number" class="sm" value="${o.labor}" onchange="updateCost('${o.id}','labor',this.value)"></td>
+    <td><input type="number" class="sm" value="${o.overhead}" onchange="updateCost('${o.id}','overhead',this.value)"></td>
+    <td>${money(total)}</td><td>${o.produced>0?money(unit):'—'}</td></tr>`;
+  });
+  return head('Gestión de costos','Costo de materiales, mano de obra e indirectos por orden de producción')+
+  `<div class="panel"><h3>Costo por orden</h3>${table(['Orden','Producto','Materiales','Mano de obra','Indirectos','Costo total','Costo unitario'],rows)}
+  <div class="note">Mano de obra e indirectos son editables por orden; el costo unitario se recalcula automáticamente y actualiza el costo del producto en inventario.</div></div>
+  <div class="panel"><h3>Costo de mermas</h3>${table(['Fecha','Producto','Cantidad','Costo estimado','Motivo'],
+    state.mermas.map(m=>{const p=prod(m.product);return `<tr data-row><td>${fdate(m.date)}</td><td>${p.name}</td><td>${num(m.qty,1)} ${p.unit}</td><td>${money(m.qty*p.cost)}</td><td>${m.reason}</td></tr>`;}))}</div>`;
+}
+
+function renderEOQResult(r,D,S,H,pid){
+  const rows=[0.5,0.75,1,1.25,1.5].map(f=>{const q=r.eoq*f,tc=(D/q)*S+(q/2)*H;return{q,tc};});
+  const maxTC=Math.max(...rows.map(x=>x.tc));
+  return `<div class="formula">EOQ = √(2 × ${num(D)} × ${num(S,2)} / ${num(H,2)}) = <b>${num(r.eoq,1)} unidades</b></div>
+  <div class="grid">
+    <div class="card kpi"><div class="label">Pedidos al año</div><div class="val">${num(r.N,1)}</div></div>
+    <div class="card kpi"><div class="label">Costo de ordenar anual</div><div class="val">${money(r.ordCost)}</div></div>
+    <div class="card kpi"><div class="label">Costo de mantener anual</div><div class="val">${money(r.holdCost)}</div></div>
+    <div class="card kpi"><div class="label">Costo total anual</div><div class="val">${money(r.total)}</div></div>
+  </div>
+  <h3>Costo total según cantidad pedida</h3>
+  ${rows.map(x=>`<div class="bar-row"><span>${x.q===r.eoq?'EOQ → ':''}${num(x.q,0)} und</span><div class="bar-bg"><div class="bar-fill" style="width:${x.tc/maxTC*100}%"></div></div><span>${money(x.tc)}</span></div>`).join('')}
+  <button class="btn" style="margin-top:10px" onclick="saveEOQSim(${D},${S},${H},'${pid}')">Guardar simulación</button>`;
+}
+function viewEOQ(){
+  const sims=state.eoqSims.map(s=>{const r=calcEOQ(s.D,s.S,s.H);return `<tr data-row><td>${fdate(s.date)}</td><td>${prod(s.product)?.name||s.product}</td><td>${num(s.D)}</td><td>${money(s.S)}</td><td>${money(s.H)}</td><td>${num(r.eoq,1)}</td></tr>`;});
+  return head('Modelo EOQ','Cantidad Económica de Pedido: EOQ = √(2DS / H)')+
+  `<div class="panel"><h3>Calcular EOQ</h3><div class="form-row">
+    <div><label>Insumo (referencia)</label><select id="eoqProd">${state.products.filter(p=>p.type==='MP').map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+    <div><label>Demanda anual (D)</label><input id="eoqD" type="number" class="sm" value="6000"></div>
+    <div><label>Costo por pedido S (S/)</label><input id="eoqS" type="number" class="sm" value="45"></div>
+    <div><label>Costo mantener H (S//und/año)</label><input id="eoqH" type="number" class="sm" step="0.01" value="0.9"></div>
+    <button class="btn" onclick="runEOQ()">Calcular</button></div>
+    <div id="eoqResult"></div></div>
+  <div class="panel"><h3>Simulaciones guardadas</h3>${table(['Fecha','Insumo','D','S','H','EOQ'],sims)}</div>`;
+}
+
+function viewReposicion(){
+  const mp=state.products.filter(p=>p.type==='MP'&&p.active);
+  const probRows=mp.map(p=>{const pp=state.prob[p.id]||{d:0,sigma:0,L:1,z:1.65};const r=ropOf(p.id);
+    return `<tr data-row><td>${p.name}</td>
+    <td><input class="sm" type="number" value="${pp.d}" onchange="updateProb('${p.id}','d',this.value)"></td>
+    <td><input class="sm" type="number" value="${pp.sigma}" onchange="updateProb('${p.id}','sigma',this.value)"></td>
+    <td><input class="sm" type="number" value="${pp.L}" onchange="updateProb('${p.id}','L',this.value)"></td>
+    <td><select onchange="updateProb('${p.id}','z',this.value)">
+      <option value="1.28" ${pp.z==1.28?'selected':''}>90%</option><option value="1.65" ${pp.z==1.65?'selected':''}>95%</option>
+      <option value="1.96" ${pp.z==1.96?'selected':''}>97.5%</option><option value="2.33" ${pp.z==2.33?'selected':''}>99%</option></select></td>
+    <td>${num(r.ss,1)} ${p.unit}</td><td>${num(r.rop,1)} ${p.unit}</td><td>${num(p.stock,1)} ${p.unit}</td>
+    <td>${p.stock<=r.rop?'<span class="tag bad">Reponer ahora</span>':'<span class="tag ok">OK</span>'}</td></tr>`;});
+  const suggestions=mp.filter(p=>{const r=ropOf(p.id);return p.stock<=r.rop;});
+  const sugRows=suggestions.map(p=>{const sim=state.eoqSims.find(s=>s.product===p.id);const qty=sim?calcEOQ(sim.D,sim.S,sim.H).eoq:Math.max(p.min*1.5-p.stock,p.min);
+    return `<tr data-row><td>${p.name}</td><td>${num(p.stock,1)} ${p.unit}</td><td>${num(qty,1)} ${p.unit}</td><td>${sim?'EOQ guardado':'Estimado (1.5×mínimo)'}</td>
+    <td><button class="btn" onclick="genPO('${p.id}',${qty})">Generar orden de compra</button></td></tr>`;});
+  const poRows=state.purchaseOrders.map(o=>`<tr data-row><td>${o.id}</td><td>${o.supplier}</td><td>${prod(o.product).name}</td><td>${num(o.qty,1)}</td><td>${fdate(o.date)}</td>
+    <td><span class="tag ${o.status==='Recibida'?'ok':'warn'}">${o.status}</span></td><td>${o.status==='Pendiente'?`<button class="btn secondary" onclick="receivePO('${o.id}')">Recibir</button>`:''}</td></tr>`);
+  const supRows=state.suppliers.map(s=>`<tr data-row><td>${s.name}</td><td>${s.contact}</td><td>${prod(s.supplies)?.name}</td></tr>`);
+  return head('Inventario probabilístico y compras','Stock de seguridad, punto de reposición y sugerencias de abastecimiento')+
+  `<div class="panel"><h3>Parámetros por insumo</h3>${table(['Insumo','Demanda prom. (d/periodo)','Desv. estándar (σd)','Lead time (L)','Nivel de servicio','Stock seguridad','Punto de reposición','Stock actual','Estado'],probRows)}
+  <div class="note">Fórmulas: Stock de seguridad = Z × σd × √L — Punto de reposición = d × L + Stock de seguridad. d, σd y L deben estar en la misma unidad de tiempo.</div></div>
+  <div class="panel"><h3>Sugerencias de compra</h3>${sugRows.length?table(['Insumo','Stock actual','Cantidad sugerida','Origen de la cantidad',''],sugRows):'<div class="empty">Ningún insumo está en o bajo su punto de reposición</div>'}</div>
+  <div class="panel"><h3>Órdenes de compra</h3>${table(['OC','Proveedor','Insumo','Cantidad','Fecha','Estado',''],poRows)}</div>
+  <div class="panel"><h3>Proveedores</h3>${table(['Nombre','Contacto','Insumo que provee'],supRows)}</div>`;
+}
+
+function viewMermas(){
+  const rows=state.mermas.map(m=>{const p=prod(m.product);return `<tr data-row><td>${fdate(m.date)}</td><td>${p.name}</td><td>${num(m.qty,1)} ${p.unit}</td><td>${money(m.qty*p.cost)}</td><td>${m.reason}</td><td>${m.order||'—'}</td></tr>`;});
+  return head('Mermas y sostenibilidad','Registro, costo y trazabilidad de los desperdicios')+
+  `<div class="panel"><h3>Registrar merma</h3><div class="form-row">
+    <div><label>Producto</label><select id="mrProd">${state.products.filter(p=>p.active).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+    <div><label>Cantidad</label><input id="mrQty" type="number" class="sm" step="0.01"></div>
+    <div><label>Motivo</label><input id="mrReason" placeholder="Ej. Vencimiento, derrame, rotura"></div>
+    <button class="btn" onclick="registerMerma()">Registrar merma</button></div></div>
+  <div class="panel"><h3>Historial</h3>${table(['Fecha','Producto','Cantidad','Costo estimado','Motivo','Orden asociada'],rows)}
+  <div class="note">El costo ambiental (por ejemplo CO₂ evitado) no se calcula en este prototipo porque requiere factores de conversión configurados y documentados por la empresa; no se inventan cifras de sostenibilidad.</div></div>`;
+}
+
+function viewReportes(){
+  return head('Reportes y trazabilidad','Vistas consolidadas de los datos reales del sistema')+
+  `<div class="panel"><h3>Movimientos de inventario</h3>${table(['Fecha','Producto','Tipo','Cantidad','Referencia'],state.movements.slice(0,15).map(m=>`<tr data-row><td>${fdate(m.date)}</td><td>${prod(m.product)?.name}</td><td>${m.type}</td><td>${num(m.qty,1)}</td><td>${m.ref}</td></tr>`))}</div>
+  <div class="panel"><h3>Órdenes de producción</h3>${table(['ID','Producto','Estado','Buenas','Defectuosas'],state.orders.map(o=>`<tr data-row><td>${o.id}</td><td>${prod(o.product).name}</td><td>${o.status}</td><td>${num(o.produced,1)}</td><td>${num(o.defective,1)}</td></tr>`))}</div>
+  <div class="panel"><h3>Mermas</h3>${table(['Fecha','Producto','Cantidad','Motivo'],state.mermas.map(m=>`<tr data-row><td>${fdate(m.date)}</td><td>${prod(m.product).name}</td><td>${num(m.qty,1)}</td><td>${m.reason}</td></tr>`))}</div>
+  <div class="note">La exportación a PDF/Excel requiere un backend real; en este prototipo los datos pueden revisarse y filtrarse aquí mismo.</div>`;
+}
+
+function viewConfig(){
+  const roles=[['Administrador empresarial','Acceso total a la configuración y todos los módulos'],
+    ['Gerente de operaciones','Visualiza y aprueba producción, compras y reportes'],
+    ['Responsable de producción','Gestiona órdenes de producción y BOM'],
+    ['Encargado de almacén','Registra movimientos, mermas y recepciones'],
+    ['Analista de costos','Accede a costos, EOQ y reportes financieros'],
+    ['Usuario de consulta','Solo lectura sobre dashboards y reportes']];
+  return head('Configuración','Empresa, usuarios y roles (vista informativa)')+
+  `<div class="panel"><h3>Empresa</h3><p><b>Agroindustrias Verde SAC</b> · RUC 20601234567 · Plan: Pyme Plus</p>
+  <div class="note">La arquitectura multiempresa real (aislamiento de datos por empresa en base de datos) no está implementada en este prototipo de un solo archivo.</div></div>
+  <div class="panel"><h3>Sesión actual</h3><p>Admin Demo — admin@agroverde.pe</p><button class="btn secondary" onclick="logout()">Cerrar sesión (demo)</button>
+  <div class="note">Sin autenticación real, hashing de contraseñas ni control de sesión del lado del servidor.</div></div>
+  <div class="panel"><h3>Roles sugeridos</h3>${table(['Rol','Alcance'],roles.map(r=>`<tr data-row><td>${r[0]}</td><td>${r[1]}</td></tr>`))}</div>`;
+}
+
+document.addEventListener('click',e=>{
+  const w=document.getElementById('dropWrap');
+  if(!w.classList.contains('hidden')&&!w.contains(e.target)&&e.target.title!=='Notificaciones')w.classList.add('hidden');
+});
+</script>
+</body>
+</html>
